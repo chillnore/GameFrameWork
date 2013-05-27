@@ -11,7 +11,6 @@ package gFrameWork.url
 	
 	import gFrameWork.JT_internal;
 	
-	
 	use namespace JT_internal
 	
 	public class AssetsLoader extends Loader

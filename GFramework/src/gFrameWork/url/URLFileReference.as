@@ -1,8 +1,4 @@
-/**
- *
- * 网络文件的引用
- *  
- */
+
 
 package gFrameWork.url
 {
@@ -25,6 +21,11 @@ package gFrameWork.url
 		
 		private var mUrl:URLRequest;
 		
+		/**
+		 * 网络远程文件 
+		 * @param address
+		 * 
+		 */		
 		public function URLFileReference(address:URLRequest = null)
 		{
 			mUrl = address;					
@@ -71,6 +72,9 @@ package gFrameWork.url
 			}
 		}
 		
+		/**
+		 * 关闭 
+		 */		
 		public function close():void
 		{
 			removeListener();
@@ -81,6 +85,11 @@ package gFrameWork.url
 			}
 		}
 		
+		/**
+		 * 成功后调用 
+		 * @param event
+		 * 
+		 */		
 		private function completeHandler(event:Event):void
 		{
 			if(mLoadingCompleteHandler != null)

@@ -30,7 +30,7 @@ package gFrameWork.uiControl
 		/**
 		 *  销毁清理的检测时间以毫秒为单位，如果此值为0时表示该UI不会被回收。
 		 */		
-		protected var mDieTime:uint = 3000;
+		protected var mDieTime:uint = 60000;
 		
 		/**
 		 * 清理检测的ID

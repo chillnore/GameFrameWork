@@ -10,7 +10,7 @@
     <classEntry path="gFrameWork.tooltip.TooltipBase"/>
     <classEntry path="gFrameWork.tooltip.TooltipManager"/>
     <classEntry path="gFrameWork.uiControl.WindowUIControls"/>
-    <classEntry path="gFrameWork.extenders.FlexTooltipNode"/>
+    <classEntry path="gFrameWork.display.PivotSprite"/>
   </includeClasses>
   <includeResources/>
   <namespaceManifests/>

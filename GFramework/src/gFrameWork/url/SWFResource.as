@@ -13,7 +13,6 @@ package gFrameWork.url
 	
 	public class SWFResource
 	{
-		
 		/**
 		 * 资源装载器 
 		 */		

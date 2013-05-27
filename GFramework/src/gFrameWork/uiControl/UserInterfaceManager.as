@@ -13,38 +13,80 @@ package gFrameWork.uiControl
 	public class UserInterfaceManager
 	{
 		
+		/**
+		 * 单例 
+		 */		
 		private static var mInstance:UserInternalManager;
 		
+		/**
+		 * 开启某个UI显示 
+		 * @param ui_id
+		 * @param isPop
+		 * @param position
+		 * @return 
+		 * 
+		 */		
 		public static function open(ui_id:uint,isPop:Boolean = false,position:Point = null):Boolean
 		{
 			return instance.open(ui_id,isPop,position);	
 		}
 		
+		/**
+		 * 关闭某个UI 
+		 * @param ui_id
+		 * @return 
+		 * 
+		 */		
 		public static function close(ui_id:uint):Boolean
 		{
 			return instance.close(ui_id);	
 		}
 		
+		/**
+		 * 关闭已经打开的所有窗口UI 
+		 * 
+		 */		
 		public static function closeAllWindow():void
 		{
 			instance.closeAllWindow();
 		}
 		
+		/**
+		 * 注册一个UI 
+		 * @param ui_id
+		 * @param uiCls
+		 * @param controlCLS
+		 * 
+		 */		
 		public static function registerGUI(ui_id:uint,uiCls:Class,controlCLS:Class):void
 		{
 			instance.registerUserUI(ui_id,uiCls,controlCLS);
 		}
 		
+		/**
+		 * 销毁一个UI实例 
+		 * @param ui_id
+		 * 
+		 */		
 		public static function retireUI(ui_id:uint):void
 		{
 			instance.retireUI(ui_id);
 		}
 		
+		/**
+		 * 获取一个UI控制 
+		 * @param ui_id
+		 * @return 
+		 * 
+		 */		
 		public static function getUIByID(ui_id:uint):UserInterControls
 		{
 			return instance.getUIByID(ui_id);
 		}
 		
+		/**
+		 * UI排序 
+		 */		
 		public static function windowLayout():void
 		{
 			instance.windowLayout();

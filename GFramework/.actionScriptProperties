@@ -1,11 +1,11 @@
 <?xml version="1.0" encoding="UTF-8" standalone="no"?>
 <actionScriptProperties analytics="false" mainApplicationPath="as3GFramework.as" projectUUID="64eddeb6-edb0-45af-9108-ec211449ca76" version="10">
-  <compiler additionalCompilerArguments="-locale en_US" autoRSLOrdering="true" copyDependentFiles="false" flex3CompatMode="false" flexSDK="Flex 4.5" fteInMXComponents="false" generateAccessible="false" htmlExpressInstall="true" htmlGenerate="false" htmlHistoryManagement="false" htmlPlayerVersionCheck="true" includeNetmonSwc="false" outputFolderPath="bin" removeUnusedRSL="true" sourceFolderPath="src" strict="true" targetPlayerVersion="0.0.0" useApolloConfig="false" useDebugRSLSwfs="true" verifyDigests="true" warn="true">
+  <compiler additionalCompilerArguments="-locale en_US" autoRSLOrdering="true" copyDependentFiles="false" flex3CompatMode="false" flexSDK="Flex 4.6.0" fteInMXComponents="false" generateAccessible="false" htmlExpressInstall="true" htmlGenerate="false" htmlHistoryManagement="false" htmlPlayerVersionCheck="true" includeNetmonSwc="false" outputFolderPath="bin" removeUnusedRSL="true" sourceFolderPath="src" strict="true" targetPlayerVersion="0.0.0" useApolloConfig="false" useDebugRSLSwfs="true" verifyDigests="true" warn="true">
     <compilerSourcePath>
-      <compilerSourcePathEntry kind="1" linkType="1" path="D:/work/as3/GF/as3Lib/GTween_v2_01/src"/>
-      <compilerSourcePathEntry kind="1" linkType="1" path="D:/work/as3/GF/as3Lib/nochump-ziplib-105-src/src"/>
-      <compilerSourcePathEntry kind="1" linkType="1" path="D:/work/as3/GF/as3Lib/PureMVC_AS3_2_0_4/src"/>
-      <compilerSourcePathEntry kind="1" linkType="1" path="D:/work/as3/GF/as3Lib/theflashbum-stats.as-2b0ad10/src"/>
+      <compilerSourcePathEntry kind="1" linkType="1" path="/Users/taojiang/Documents/work/as3/GameFrameWork/as3Lib/GTween_v2_01/src"/>
+      <compilerSourcePathEntry kind="1" linkType="1" path="/Users/taojiang/Documents/work/as3/GameFrameWork/as3Lib/nochump-ziplib-105-src/src"/>
+      <compilerSourcePathEntry kind="1" linkType="1" path="/Users/taojiang/Documents/work/as3/GameFrameWork/as3Lib/PureMVC_AS3_2_0_4/src"/>
+      <compilerSourcePathEntry kind="1" linkType="1" path="/Users/taojiang/Documents/work/as3/GameFrameWork/as3Lib/theflashbum-stats.as-2b0ad10/src"/>
     </compilerSourcePath>
     <libraryPath defaultLinkType="0">
       <libraryPathEntry kind="4" path="">
