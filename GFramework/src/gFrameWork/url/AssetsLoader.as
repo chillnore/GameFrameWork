@@ -13,6 +13,10 @@ package gFrameWork.url
 	
 	use namespace JT_internal
 	
+	/**
+	 * 资源文件装载
+	 * @author taojiang
+	 */	
 	public class AssetsLoader extends Loader
 	{
 		/**
@@ -133,6 +137,12 @@ package gFrameWork.url
 			}
 		}
 		
+		/**
+		 * 按二进制流装载资源 
+		 * @param bytes
+		 * @param context
+		 * 
+		 */		
 		public override function loadBytes(bytes:ByteArray, context:LoaderContext=null):void
 		{
 			mByteArray = bytes;
@@ -145,6 +155,11 @@ package gFrameWork.url
 			}
 		}
 		
+		/**
+		 * 是否已经装载过了 
+		 * @return 
+		 * 
+		 */		
 		public function get isComplete():Boolean
 		{
 			return content ? true : false;

@@ -20,13 +20,17 @@ package gFrameWork.uiControl
 	import mx.utils.StringUtil;
 
 	[event(name="complete",type="flash.events.Event")]
+	
+	/**
+	 * UI资源加载控制器，一个UI开启之前会进入一个加载阶段，加载当前UI所需要的资源文件 
+	 * @author taojiang
+	 * 
+	 */	
 	public class UIBeforeLoading extends EventDispatcher
 	{
 		
 		/**
-		 * 
 		 * 加载的资源文件列表
-		 *  
 		 */		
 		private var mLoadList:Vector.<String>;
 		
@@ -50,11 +54,18 @@ package gFrameWork.uiControl
 		 */		
 		protected var mCurFileLoader:FileLoader;
 		
+		/**
+		 * 当前的UI控制器 
+		 */		
+		private var mUIControl:UserInterControls;
 		
-		public function UIBeforeLoading()
+		public function UIBeforeLoading(uiControl:UserInterControls)
 		{
 			mLoadList = new Vector.<String>(); 
 			mFileList = new Vector.<FileLoader>();
+			
+			mUIControl = uiControl;
+			
 			registerToLoaded();
 		}
 		
@@ -64,7 +75,14 @@ package gFrameWork.uiControl
 		 */		
 		protected function registerToLoaded():void
 		{
-			
+			var fileUrls:Vector.<String> = mUIControl.getUiLoadFiles();
+			if(fileUrls)
+			{
+				while(fileUrls.length > 0)
+				{
+					appendToList(fileUrls[0]);
+				}
+			}
 		}
 		
 		/**
@@ -83,7 +101,7 @@ package gFrameWork.uiControl
 		 * @param event
 		 * 
 		 */		
-		private function loadComponent(event:Event):void
+		private function loadComplete(event:Event):void
 		{
 			if(mFileList.length > 0)
 			{
@@ -92,7 +110,7 @@ package gFrameWork.uiControl
 			else
 			{
 				onComplete();
-				sotpAndClear();
+				stopAndClear();
 				if(hasEventListener(Event.COMPLETE))
 				{
 					dispatchEvent(new Event(Event.COMPLETE));
@@ -119,7 +137,7 @@ package gFrameWork.uiControl
 		{
 			if(mCurFileLoader)
 			{
-				mCurFileLoader.removeEventListener(Event.COMPLETE,loadComponent);
+				mCurFileLoader.removeEventListener(Event.COMPLETE,loadComplete);
 				mCurFileLoader.removeEventListener(IOErrorEvent.IO_ERROR,loadError);
 				mCurFileLoader.removeEventListener(ProgressEvent.PROGRESS,loadProgress);
 				mCurFileLoader.dispose();
@@ -136,7 +154,7 @@ package gFrameWork.uiControl
 				mCurIndex++;
 				onLoadChange();
 				
-				mCurFileLoader.addEventListener(Event.COMPLETE,loadComponent,false,0,true);
+				mCurFileLoader.addEventListener(Event.COMPLETE,loadComplete,false,0,true);
 				mCurFileLoader.addEventListener(IOErrorEvent.IO_ERROR,loadError,false,0,true);
 				mCurFileLoader.addEventListener(ProgressEvent.PROGRESS,loadProgress,false,0,true);
 				mCurFileLoader.loader();
@@ -187,6 +205,7 @@ package gFrameWork.uiControl
 				{
 					mFileList.push(ResouceManager.getFileLoader(new URLRequest(mLoadList[i])));
 				}
+				
 				if(mFileList.length > 0)
 				{
 					nextLoad();
@@ -218,13 +237,13 @@ package gFrameWork.uiControl
 		 * 暂停并且清除当前所下载的列表资源 
 		 * 
 		 */		
-		public function sotpAndClear():void
+		public function stopAndClear():void
 		{
 			mClearingFag = true;
 			mCurIndex = 0;
 			if(mCurFileLoader)
 			{
-				mCurFileLoader.removeEventListener(Event.COMPLETE,loadComponent);
+				mCurFileLoader.removeEventListener(Event.COMPLETE,loadComplete);
 				mCurFileLoader.removeEventListener(IOErrorEvent.IO_ERROR,loadError);
 				mCurFileLoader.removeEventListener(ProgressEvent.PROGRESS,loadProgress);
 				mCurFileLoader.dispose();
@@ -235,7 +254,7 @@ package gFrameWork.uiControl
 			{
 				while(mFileList.length > 0)
 				{
-					mFileList[0].removeEventListener(Event.COMPLETE,loadComponent);
+					mFileList[0].removeEventListener(Event.COMPLETE,loadComplete);
 					mFileList[0].removeEventListener(IOErrorEvent.IO_ERROR,loadError);
 					mFileList[0].removeEventListener(ProgressEvent.PROGRESS,loadProgress);
 					mFileList[0].dispose();

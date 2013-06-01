@@ -21,7 +21,6 @@ package gFrameWork.uiControl
 	
 	public class UserInterControls extends EventDispatcher implements IDisabled
 	{
-
 		/**
 		 * 标识ID  
 		 */		
@@ -70,7 +69,6 @@ package gFrameWork.uiControl
 		
 		/**
 		 * ui被打开显示后调用的数据刷新函数 
-		 * 
 		 */		
 		protected function openRefresh():void
 		{
@@ -84,6 +82,7 @@ package gFrameWork.uiControl
 		{
 			if(!gui) throw new Error("gui 不能为空");
 			mGUI = gui;
+			uiElementLoading = new UIBeforeLoading(this);
 		}
 		
 		/**
@@ -201,6 +200,16 @@ package gFrameWork.uiControl
 			{
 				getRoot().removeEventListener(MouseEvent.CLICK,validatePopupClick,true);
 				removeFromeUiSpace();
+				
+				if(uiElementLoading)
+				{
+					uiElementLoading.stopAndClear();
+				}
+				
+				if(mGUI is IDisabled)
+				{
+					IDisabled(mGUI).dispose();
+				}
 				mGUI = null;
 			}
 		}
@@ -238,10 +247,22 @@ package gFrameWork.uiControl
 			return GFrameWork.getInstance().root;
 		}
 		
+		/**
+		 * 获取当前UI加载阶段时被指定的资源 
+		 * @return 
+		 * 
+		 */		
+		public function  getUiLoadFiles():Vector.<String>
+		{
+			return null;
+		}
+		
 		protected function getRoot():DisplayObjectContainer
 		{
 			return GFrameWork.getInstance().root;
 		}
+		
+		
 		
 	}
 }

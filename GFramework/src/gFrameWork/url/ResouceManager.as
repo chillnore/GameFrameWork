@@ -16,7 +16,6 @@ package gFrameWork.url
 	/**
 	 * 外部资源加载管理，控制资源加载和装载时的缓冲过程。 
 	 * @author JT
-	 * 
 	 */	
 	public class ResouceManager
 	{
@@ -102,7 +101,6 @@ import flash.utils.Dictionary;
 import gFrameWork.JT_internal;
 import gFrameWork.url.AssetsLoader;
 import gFrameWork.url.FileLoader;
-
 
 use namespace JT_internal;
 
@@ -193,7 +191,6 @@ class _ResourceManager
 		}
 		
 		var url:String = request.url;
-		
 		var assetsLoader:AssetsLoader;
 		
 		if(mAssetsLoaderDict[url])

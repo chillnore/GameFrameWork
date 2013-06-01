@@ -13,6 +13,11 @@ package gFrameWork.tooltip
 	
 	import gFrameWork.GFrameWork;
 
+	/**
+	 * 默认的TOOLTI文本显示 
+	 * @author taojiang
+	 * 
+	 */	
 	public class DefaultTooltip extends TooltipBase implements ITooltip
 	{
 		/**

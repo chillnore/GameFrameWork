@@ -16,7 +16,5 @@ package gFrameWork.tooltip
 		/*显示Tip*/
 		function showTip():void;
 		function hideTip():void;
-			
-			
 	}
 }
