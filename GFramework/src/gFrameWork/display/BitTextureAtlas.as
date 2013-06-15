@@ -64,11 +64,16 @@ package gFrameWork.display
 			if(rectange && sourceBit)
 			{
 				
-				var offPoint:Point = frameRect 
-					? new Point(Math.abs(rectange.width - frameRect.width),Math.abs(rectange.height - frameRect.height)) 
-					: new Point()
-				var bitRect:Rectangle = frameRect ? frameRect : rectange;
-				var bitData:BitmapData = new BitmapData(bitRect.width,bitRect.height,true,0);
+//				var offPoint:Point = frameRect 
+//					? new Point(Math.abs(rectange.width - frameRect.width),Math.abs(rectange.height - frameRect.height)) 
+//					: new Point()
+//				var bitRect:Rectangle = frameRect ? frameRect : rectange;
+//				var bitData:BitmapData = new BitmapData(bitRect.width,bitRect.height,true,0);
+//				bitData.copyPixels(sourceBit,rectange,offPoint);
+//				return bitData;
+				
+				var offPoint:Point = new Point(Math.abs(frameRect.x),Math.abs(frameRect.y));
+				var bitData:BitmapData = new BitmapData(frameRect.width,frameRect.height,true,0);
 				bitData.copyPixels(sourceBit,rectange,offPoint);
 				return bitData;
 			}
@@ -95,8 +100,7 @@ package gFrameWork.display
 				var frameHeight:Number = parseFloat(subTexture.attribute("frameHeight"));
 				
 				var region:Rectangle = new Rectangle(x, y, width, height);
-				var frame:Rectangle  = frameWidth > 0 && frameHeight > 0 ?
-					new Rectangle(frameX, frameY, frameWidth, frameHeight) : null;
+				var frame:Rectangle = new Rectangle(frameX, frameY, frameWidth, frameHeight);
 				
 				addRegion(name, region, frame);
 			}
@@ -105,7 +109,7 @@ package gFrameWork.display
 		private function addRegion(name_:String,region_:Rectangle,frame_:Rectangle):void
 		{
 			mTextureRegions[name_] = region_;
-			if(frame_) mFrames[name_] = frame_;
+			mFrames[name_] = frame_;
 		}
 		
 		/**
