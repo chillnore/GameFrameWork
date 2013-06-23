@@ -296,7 +296,12 @@ package gFrameWork.display
 			var finalFrame:int;
 			var previousFrame:int = m_currentFrame;
 			
-			if (m_loop && m_currentTime == m_totalTime) { m_currentTime = 0.0; m_currentFrame = 0;}
+			if (m_loop && m_currentTime == m_totalTime) 
+			{ 
+				m_currentTime = 0.0;
+				m_currentFrame = 0;
+			}
+			
 			if (!m_playing || passedTime == 0.0 || m_currentTime == m_totalTime) return;
 			
 			m_currentTime += passedTime;
