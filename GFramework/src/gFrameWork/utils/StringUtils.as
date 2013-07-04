@@ -34,6 +34,8 @@ package gFrameWork.utils
 {
 	
 	/**
+	 * 
+	 * 
 	* 	Class that contains static utility methods for manipulating Strings.
 	* 
 	* 	@langversion ActionScript 3.0

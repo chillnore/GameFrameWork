@@ -30,6 +30,13 @@ local.properties
 
 
 #################
+## Flex
+#################
+.actionScriptProperties
+.flexLibProperties
+.project
+
+#################
 ## Visual Studio
 #################
 
