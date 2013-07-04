@@ -32,9 +32,9 @@ local.properties
 #################
 ## Flex
 #################
-.actionScriptProperties
-.flexLibProperties
-.project
+/GFramework/.actionScriptProperties
+/GFramework/.flexLibProperties
+/GFramework/.project
 
 #################
 ## Visual Studio
