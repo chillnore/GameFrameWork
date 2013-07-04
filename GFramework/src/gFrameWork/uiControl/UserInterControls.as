@@ -54,7 +54,7 @@ package gFrameWork.uiControl
 		/**
 		 * 在打开当前UI界面时先下载相关的资源文件处理 
 		 */		
-		public var uiElementLoading:UIBeforeLoading;
+		public var uiElementLoading:UIPreloader;
 		
 		/**
 		 * 是否可以使用的标识
@@ -82,7 +82,7 @@ package gFrameWork.uiControl
 		{
 			if(!gui) throw new Error("gui 不能为空");
 			mGUI = gui;
-			uiElementLoading = new UIBeforeLoading(this);
+			uiElementLoading = new UIPreloader(this);
 		}
 		
 		/**

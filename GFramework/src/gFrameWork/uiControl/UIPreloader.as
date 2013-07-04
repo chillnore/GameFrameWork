@@ -26,7 +26,7 @@ package gFrameWork.uiControl
 	 * @author taojiang
 	 * 
 	 */	
-	public class UIBeforeLoading extends EventDispatcher
+	public class UIPreloader extends EventDispatcher
 	{
 		
 		/**
@@ -59,7 +59,7 @@ package gFrameWork.uiControl
 		 */		
 		private var mUIControl:UserInterControls;
 		
-		public function UIBeforeLoading(uiControl:UserInterControls)
+		public function UIPreloader(uiControl:UserInterControls)
 		{
 			mLoadList = new Vector.<String>(); 
 			mFileList = new Vector.<FileLoader>();

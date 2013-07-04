@@ -90,7 +90,6 @@ package gFrameWork.tooltip
 		
 //====================ITooltip=========================================================
 		
-		
 		public override function set tip(val:Object):void
 		{
 			if(tooltip == val) return;
@@ -104,6 +103,7 @@ package gFrameWork.tooltip
 		{
 			return tooltip;
 		}
+		
 //============================END=====================================================
 	}
 }
