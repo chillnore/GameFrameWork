@@ -1,4 +1,4 @@
-package gFrameWork.appDrag
+package gameLib_JT.appDrag
 {
 	import flash.display.DisplayObject;
 	import flash.events.Event;
@@ -12,17 +12,25 @@ package gFrameWork.appDrag
 	 */	
 	public class AppDragMgr
 	{
-		
 		/**
 		 * 单例 
 		 */		
 		private static var mInstance:AppDragManager;
 		
-		
 		/**
 		 * 事件派发 
 		 */		
 		private static var eventDispatch:EventDispatcher;
+		
+		/**
+		 * 鼠标粘贴
+		 */		
+		public static const CLINGY:int = 1;
+		
+		/**
+		 * 鼠标拖拽 
+		 */		
+		public static const DRAG:int = 2;
 		
 		
 		public function AppDragMgr()
@@ -31,15 +39,18 @@ package gFrameWork.appDrag
 		}
 		
 		/**
-		 * 鼠标粘贴要被移动的对像 
+		 * 要被移动的对像 
 		 * @param targetObj			被移动的原型
 		 * @param itemData			被移动的原型的数据
 		 * @param dragImg			被移动时显示的图形,如果此值为空则以原型的外观复本显示
-		 * 
+		 * @param mode				//移动的方式，1粘贴，2拖拽。
 		 */		
-		public static function clingyItem(targetObj:DisplayObject,itemData:Object = null,dragImg:DisplayObject = null):void
+		public static function clingyItem(targetObj:DisplayObject,
+										  itemData:Object = null,
+										  dragImg:DisplayObject = null,
+										  mode:int = 1):void
 		{
-			instance.clingyItem(targetObj,itemData,dragImg);
+			instance.clingyItem(targetObj,itemData,dragImg,mode);
 		}
 		
 		public static function addEventListener(type:String,callFunc:Function,useCapture:Boolean=false,priority:int = 0,useWeakReference:Boolean=false):void
@@ -89,14 +100,10 @@ import flash.geom.Point;
 import flash.utils.clearTimeout;
 import flash.utils.setTimeout;
 
-import gFrameWork.GFrameWork;
-import gFrameWork.appDrag.AppDragEvent;
-import gFrameWork.appDrag.AppDragMgr;
+import gameLib_JT.appDrag.AppDragEvent;
+import gameLib_JT.appDrag.AppDragMgr;
+import gameLib_JT.appDrag.IDragClient;
 
-import mx.core.FlexGlobals;
-import mx.core.UIComponent;
-
-import spark.components.Application;
 
 class AppDragManager
 {
@@ -121,6 +128,7 @@ class AppDragManager
 	 */	
 	private var mDrawClingy:Sprite = null;
 	
+	
 	private var mDelayID:int = 0;
 	
 	public function AppDragManager()
@@ -129,32 +137,59 @@ class AppDragManager
 	}
 	
 	/**
-	 * 粘贴鼠标移动 
+	 * 
+	 * 鼠标移动目标对像 
 	 * @param targetObj			被移动的原型
 	 * @param itemData			被移动的原型的数据
 	 * @param dragImg			被移动时显示的图形,如果此值为空则以原型的外观复本显示
-	 * 
-	 */	
-	public function clingyItem(targetObj:DisplayObject,itemData:Object = null,dragImg:DisplayObject = null):void
+	 * @param mode				移动的方式,1鼠标粘住，2鼠标拖拽
+	 */ 	
+	public function clingyItem(targetObj:DisplayObject,itemData:Object = null,dragImg:DisplayObject = null,mode:int = 1):void
 	{
-		
 		if(mDragIn) return;
-		
 		if(targetObj)
 		{
 			if(mClingyDisplay == targetObj) return;
 			mDragIn = true;
-			
 			mClingyDisplay = targetObj;
 			mItemData = itemData;
 			drawClingy(dragImg);
-			invlaidateListMouseClingy();
+			if(mode == 1)
+			{
+				invlaidateListMouseClingy();
+			}
+			else
+			{
+				invalidateMouseDrag();
+			}
 		}
 	}
 	
+	/**
+	 * 拖拽处理 
+	 */	
+	private function invalidateMouseDrag():void
+	{
+		var func:Function = function():void
+		{
+			appMain.addEventListener(MouseEvent.MOUSE_UP,enterDragHandler,false,0,true);
+		}
+		
+		if(mDelayID > 0)
+		{
+			clearTimeout(mDelayID);
+			mDelayID = 0;
+		}
+		mDelayID = setTimeout(func,1000 / 24);
+	}
+	
+	
+	/**
+	 *  
+	 * 粘贴处理
+	 */	
 	private function invlaidateListMouseClingy():void
 	{
-		
 		var func:Function = function():void
 		{
 			appMain.addEventListener(MouseEvent.CLICK,enterClingyHandler,false,0,true);
@@ -165,7 +200,6 @@ class AppDragManager
 			clearTimeout(mDelayID);
 			mDelayID = 0;
 		}
-		
 		mDelayID = setTimeout(func,1000 / 24);
 	}
 	
@@ -211,7 +245,10 @@ class AppDragManager
 	 */	
 	private function enterClingyHandler(event:MouseEvent):void
 	{
-		var appDragEvent:AppDragEvent = new AppDragEvent(AppDragEvent.CLINGY,mClingyDisplay,mItemData,new Point(event.stageX,event.stageY));
+		var appDragEvent:AppDragEvent = new AppDragEvent(AppDragEvent.CLINGY,
+			mClingyDisplay,
+			mItemData,new Point(event.stageX,event.stageY));
+		
 		AppDragMgr.dispatchEvent(appDragEvent);
 		
 		if(mDrawClingy)
@@ -224,12 +261,35 @@ class AppDragManager
 		mClingyDisplay = null;
 		mItemData = null;
 		mDragIn = false;
-		
 	}
 	
+	/**
+	 * 确认当前被拖拽的对像处理 
+	 * @param event
+	 * 
+	 */	
+	private function enterDragHandler(event:MouseEvent):void
+	{
+		var appDragEvent:AppDragEvent = new AppDragEvent(AppDragEvent.DRAG,
+			mClingyDisplay,
+			mItemData,new Point(event.stageX,event.stageY));
+		
+		AppDragMgr.dispatchEvent(appDragEvent);
+		
+		if(mDrawClingy)
+		{
+			appMain.removeChild(mDrawClingy);
+			mDrawClingy = null;
+		}
+		
+		appMain.removeEventListener(MouseEvent.MOUSE_UP,enterDragHandler);
+		mClingyDisplay = null;
+		mItemData = null;
+		mDragIn = false;
+	}
 	
 	private function get appMain():DisplayObjectContainer
 	{
-		return GFrameWork.getInstance().root;
+		return mClingyDisplay.stage;
 	}
 }

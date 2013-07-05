@@ -1,4 +1,4 @@
-package gFrameWork.appDrag
+package gameLib_JT.appDrag
 {
 	import flash.display.DisplayObject;
 	import flash.events.Event;
@@ -18,6 +18,12 @@ package gFrameWork.appDrag
 		 * 粘贴的对像 
 		 */		
 		public static const CLINGY:String = "clingy";
+		
+		
+		/**
+		 * 拖拽 
+		 */		
+		public static const DRAG:String ="drag";
 		
 		
 		/**
