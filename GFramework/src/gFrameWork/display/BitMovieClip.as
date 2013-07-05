@@ -10,8 +10,9 @@ package gFrameWork.display
 	import flash.errors.IllegalOperationError;
 	import flash.events.Event;
 	import flash.media.Sound;
-	import flash.utils.clearInterval;
+	import flash.utils.clearTimeout;
 	import flash.utils.setInterval;
+	import flash.utils.setTimeout;
 	
 	import gFrameWork.events.GFEvent;
 	
@@ -89,6 +90,17 @@ package gFrameWork.display
 		 * 位图图形渲染 
 		 */		
 		private var m_bitmap:Bitmap;
+		
+		/**
+		 * 设置回调函数处理 
+		 */		
+		private var m_callBackFuncs:Vector.<Function>;
+		
+		/**
+		 * 倒回播放
+		 */		
+		private var m_reverse:Boolean;
+		
 		/**
 		 *  
 		 * @param frame					播放动画的帧
@@ -96,7 +108,7 @@ package gFrameWork.display
 		 * @param loop					是否循环播放
 		 * 
 		 */		
-		public function BitMovieClip(frame:BitmapDataAtlas,fps:int=30,loop:Boolean = true):void
+		public function BitMovieClip(frame:BitmapDataAtlas,fps:int=30,loop:Boolean = true,reverse:Boolean=false):void
 		{
 			super();
 			
@@ -105,9 +117,11 @@ package gFrameWork.display
 			if(m_bitmapDataAtlas)
 			{
 				m_fps = fps;
-				m_loop = loop
+				m_loop = loop;
+				m_reverse = reverse;
 				m_defaultfarmeDuration = 1000 / m_fps;
 				
+				m_callBackFuncs = new Vector.<Function>();
 				m_frameDuration = new Vector.<Number>();
 				m_startTimes = new Vector.<Number>();
 				m_sound = new Vector.<Sound>();
@@ -184,14 +198,14 @@ package gFrameWork.display
 		
 		private function updateFrame():void
 		{
-			clearInterval(playID);
+			clearTimeout(playID);
 			var duration:Number = m_frameDuration[m_currentFrame];
-			playID = setInterval(advanceTime,duration,duration);
+			playID = setTimeout(advanceTime,duration,duration);
 		}
 		
 		public override function dispose():void
 		{
-			clearInterval(playID);
+			clearTimeout(playID);
 			
 			if(m_bitmap)
 			{
@@ -241,7 +255,7 @@ package gFrameWork.display
 		public function stop():void
 		{
 			m_playing = false;
-			clearInterval(playID);
+			clearTimeout(playID);
 		}
 		
 		/**
@@ -261,7 +275,7 @@ package gFrameWork.display
 			if (m_sound[m_currentFrame]) m_sound[m_currentFrame].play();
 			
 			m_playing = false;
-			clearInterval(playID);
+			clearTimeout(playID);
 			
 		}
 		
@@ -286,46 +300,54 @@ package gFrameWork.display
 			
 		}
 		
-		/**
-		 * 动画播放 
-		 * @param passedTime
-		 * 
-		 */		
 		public function advanceTime(passedTime:Number):void
 		{
+			if(totalFrames == 0) return;
 			var finalFrame:int;
 			var previousFrame:int = m_currentFrame;
 			
-			if (m_loop && m_currentTime == m_totalTime) 
-			{ 
-				m_currentTime = 0.0;
-				m_currentFrame = 0;
-			}
-			
+			if (m_loop && m_currentTime == m_totalTime) { m_currentTime = 0.0; m_currentFrame = 0;}
 			if (!m_playing || passedTime == 0.0 || m_currentTime == m_totalTime) return;
 			
 			m_currentTime += passedTime;
 			finalFrame = totalFrames - 1;
 			
+			if(finalFrame <= 0) return;
+			
+			if (stage)
+			{
+				m_bitmap.bitmapData = m_frames[m_currentFrame] as BitmapData;
+			}
+			
 			while (m_currentTime >= m_startTimes[m_currentFrame] + m_frameDuration[m_currentFrame])
 			{
 				if (m_currentFrame == finalFrame)
 				{
-					if (hasEventListener(GFEvent.MOVIE_COMPLETED))
+					if(m_reverse)
 					{
-						var restTime:Number = m_currentTime - m_totalTime;
-						m_currentTime = m_totalTime;
-						
-						if(hasEventListener(GFEvent.MOVIE_COMPLETED))
+						/*倒置播放的执行时间*/
+						var reserseDuration:Vector.<Number> = new Vector.<Number>();
+						var cloneDuration:Vector.<Number> = m_frameDuration.concat();
+						while(cloneDuration.length > 0)
 						{
-							dispatchEvent(new GFEvent(GFEvent.MOVIE_COMPLETED));
+							reserseDuration.unshift(cloneDuration.shift());
 						}
+						m_frameDuration = reserseDuration;
 						
-						advanceTime(restTime);
-						return;
+						/*倒置播放的位图数据*/
+						var reserseFrames:Vector.<BitmapData> = new Vector.<BitmapData>();
+						var cloneReserseFrames:Vector.<BitmapData> = m_frames.concat();
+						while(cloneReserseFrames.length > 0)
+						{
+							reserseFrames.unshift(cloneReserseFrames.shift());
+						}
+						m_frames = reserseFrames;
+						
+						m_currentTime -= m_totalTime;
+						m_currentFrame = 0;
 					}
-					
-					if (m_loop)
+						
+					else if(m_loop)
 					{
 						m_currentTime -= m_totalTime;
 						m_currentFrame = 0;
@@ -333,8 +355,16 @@ package gFrameWork.display
 					else
 					{
 						m_currentTime = m_totalTime;
-						break;
 					}
+					
+					if(hasEventListener(GFEvent.MOVIE_COMPLETED))
+					{
+						if(hasEventListener(GFEvent.MOVIE_COMPLETED))
+						{
+							dispatchEvent(new GFEvent(GFEvent.MOVIE_COMPLETED));
+						}
+					}
+					break;
 				}
 				else
 				{
@@ -344,14 +374,14 @@ package gFrameWork.display
 					{
 						sound.play();
 					}
+					
+					var func:Function = m_callBackFuncs[m_currentFrame];
+					if(func != null)
+					{
+						func();
+					}
 				}
 			}
-			
-			if (m_currentFrame != previousFrame)
-			{
-				m_bitmap.bitmapData = m_frames[m_currentFrame] as BitmapData;
-			}
-			
 			updateFrame();
 		}
 		
@@ -398,6 +428,19 @@ package gFrameWork.display
 				}
 			}
 			player();
+		}
+		
+		
+		/**
+		 * 某帧处理的回调函数 
+		 * @param frameID
+		 * @param func
+		 * 
+		 */		
+		public function setFrameCallFunc(frameID:int,func:Function):void
+		{
+			if(frameID < 0 || frameID > totalFrames) throw new ArgumentError("invalida frame id");
+			m_callBackFuncs[frameID] = func;
 		}
 		
 		public function getFps():uint

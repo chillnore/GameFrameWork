@@ -32,10 +32,9 @@
 
 package gFrameWork.utils
 {
+	import flash.utils.ByteArray;
 	
 	/**
-	 * 
-	 * 
 	* 	Class that contains static utility methods for manipulating Strings.
 	* 
 	* 	@langversion ActionScript 3.0
@@ -899,6 +898,79 @@ package gFrameWork.utils
 //				throw new Error("ls content or rs content is null!");
 //			}
 			return ""
+		}
+		
+		
+		// 获得字符串的字节长度
+		public function GetByteLength(string:String):int
+		{
+			var stringBytes:ByteArray = new ByteArray();
+			stringBytes.writeMultiByte(string,'utf-8');
+			return stringBytes.length;
+		}
+		
+		// 测试字符串长度，中文为两个长度
+		// 在GBK编码里，除了ASCII字符，其它都占两个字符宽
+		public static function GetGBKLength(str:String):int
+		{
+			return str.replace(/[^"x00-"xff]/g, 'xx').length;
+		}        
+		
+		
+		// 判断字符是不是中文
+		public static function isCHSString(p_string:String):Boolean
+		{
+			if (p_string == null) { return false; }
+			var regx:RegExp = /^[\u4e00-\u9fa5]+$/;
+			return regx.test(p_string)        	
+		}
+		
+		//判断字符是不是正整数
+		public static function isNumber(p_string:String):Boolean
+		{
+			if (p_string == null) { return false; }
+			var regx:RegExp = /^[^-]?\d+\d*$/;
+			return regx.test(p_string);
+		}
+		
+		//判断字符是不是密码字符（。。。）
+		public static function isPwd(p_string:String):Boolean
+		{
+			if (p_string == null) { return false; }
+			var regx:RegExp = /^[\w\u4e00-\u9fa5]{6,16}$/;
+			return regx.test(p_string);
+		}
+		
+		
+		/**
+		 * 格式化一串字符，用于替换{0},{1},{2}里的内容 
+		 * @param format
+		 * @param params
+		 * @return 
+		 */		
+		public static function Format(format:String,... params):String
+		{                       
+			
+			if(params.length==0){
+				return format;
+			}
+			
+			// 允许传入一个数组代替多选参数
+			if(params[0] is Array)
+			{
+				params = params[0];
+			}
+			
+			var re:RegExp=/\{(\d+)\}/g;
+			var getParam:Function=function(result:String,match:String,position:int,source:String):String
+			{
+				if(params[match] != null)
+				{
+					return params[match];
+				}
+				return "";
+			}
+			return format.replace(re,getParam);
 		}
 	}
 }
