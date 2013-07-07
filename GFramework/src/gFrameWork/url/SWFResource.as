@@ -10,13 +10,17 @@ package gFrameWork.url
 	import flash.system.LoaderContext;
 	import flash.utils.Dictionary;
 	
+	import gFrameWork.JT_internal;
+	
+	use namespace JT_internal;
+	
 	
 	public class SWFResource
 	{
 		/**
 		 * 资源装载器 
 		 */		
-		private var mLoader:AssetsLoader
+		private var mLoader:Loader
 		
 		/**
 		 * 文件的装载 
@@ -44,10 +48,20 @@ package gFrameWork.url
 		private var mInstallFault:Function;
 		
 		
+		//一个标识为了必免 new()来构建所以 只能通过 getSwfResource创建
+		JT_internal static var canCreate:Boolean = false;
+		
 		/**
-		 * 是否可以清理回收 
+		 * 引用计数器 
 		 */		
-		private var mCanDispose:Boolean = false;
+		JT_internal static var refcount:int = 0;
+		
+		
+		
+		/**
+		 * 是否已经装载完成 
+		 */		
+		private var mIsComplete:Boolean = false;
 		
  		/**
 		 * 
@@ -55,9 +69,14 @@ package gFrameWork.url
 		 * 文件加载完成后就装载此文件的数据流内容。使其得到swf资文件里的要关对像。 
 		 * 
 		 */		
-		public function SWFResource(weekkeys:Boolean = true)
+		public function SWFResource()
 		{
-			mCanDispose = weekkeys;	
+			growthRef();
+		}
+		
+		JT_internal function growthRef():void
+		{
+			refcount++;
 		}
 		
 		
@@ -75,27 +94,39 @@ package gFrameWork.url
 			mInstallComplete = installSucceed;
 			mInstallFault = installFault;
 			mRequest = request;
-			if(mFileLoader)
-			{
-				mFileLoader.removeEventListener(Event.COMPLETE,assetsCompleteHandler);
-				mFileLoader.removeEventListener(IOErrorEvent.IO_ERROR,assetsIOErrorHandler);
-			}
 			
-			mAppDomain = ResouceManager.getAssetsDomain(request);
-			mFileLoader = ResouceManager.getFileLoader(request);
-
-			/*验证资源文件是否已经被下载完成*/
-			if(mFileLoader.isComplete)
+			//资源是已经装载成，如果装完成则直接调用完成函数
+			if(mIsComplete)
 			{
-				//装载
-				internalInstall();
+				if(mInstallComplete != null)
+				{
+					mInstallComplete(new Event(Event.COMPLETE));
+				}
 			}
 			else
 			{
-				//监听下载过程
-				mFileLoader.addEventListener(Event.COMPLETE,assetsCompleteHandler,false,0,true);
-				mFileLoader.addEventListener(IOErrorEvent.IO_ERROR,assetsIOErrorHandler,false,0,true);
-				mFileLoader.loader();
+				if(mFileLoader)
+				{
+					mFileLoader.removeEventListener(Event.COMPLETE,assetsCompleteHandler);
+					mFileLoader.removeEventListener(IOErrorEvent.IO_ERROR,assetsIOErrorHandler);
+				}
+				
+				mAppDomain = new ApplicationDomain();
+				mFileLoader = ResouceManager.getFileLoader(request);
+				
+				/*验证资源文件是否已经被下载完成*/
+				if(mFileLoader.isComplete)
+				{
+					//开始装载资源
+					internalInstall();
+				}
+				else
+				{
+					//监听下载过程
+					mFileLoader.addEventListener(Event.COMPLETE,assetsCompleteHandler,false,0,true);
+					mFileLoader.addEventListener(IOErrorEvent.IO_ERROR,assetsIOErrorHandler,false,0,true);
+					mFileLoader.loader();
+				}
 			}
 		}
 		
@@ -104,25 +135,28 @@ package gFrameWork.url
 		 * 卸载安装的资源文件 
 		 * 
 		 */		
-		public function unInstall():void
+		JT_internal function dispose():void
 		{
-			if(mLoader)
-			{
-				mLoader.contentLoaderInfo.removeEventListener(Event.COMPLETE,completeHandler);
-				mLoader.contentLoaderInfo.removeEventListener(IOErrorEvent.IO_ERROR,ioErrorHandler);
-//				mLoader.unloadAndStop(true);
-				if(mCanDispose)
-				{
-					//销毁当前使用的资源
-					ResouceManager.destoryAssetsLoader(mRequest);
-				}
-			}
 			
-			if(mFileLoader)
+			if(refcount > 0)
 			{
-				mFileLoader.removeEventListener(Event.COMPLETE,assetsCompleteHandler);
-				mFileLoader.removeEventListener(IOErrorEvent.IO_ERROR,assetsIOErrorHandler);
-				mFileLoader.dispose();
+				refcount--;
+			}
+			else
+			{
+				if(mLoader)
+				{
+					mLoader.contentLoaderInfo.removeEventListener(Event.COMPLETE,completeHandler);
+					mLoader.contentLoaderInfo.removeEventListener(IOErrorEvent.IO_ERROR,ioErrorHandler);
+					mLoader.unloadAndStop(false);
+				}
+				
+				if(mFileLoader)
+				{
+					mFileLoader.removeEventListener(Event.COMPLETE,assetsCompleteHandler);
+					mFileLoader.removeEventListener(IOErrorEvent.IO_ERROR,assetsIOErrorHandler);
+					mFileLoader.dispose();
+				}
 			}
 		}
 		
@@ -150,37 +184,17 @@ package gFrameWork.url
 				mLoader.contentLoaderInfo.removeEventListener(Event.COMPLETE,completeHandler);
 				mLoader.contentLoaderInfo.removeEventListener(IOErrorEvent.IO_ERROR,ioErrorHandler);
 				mLoader.unloadAndStop(true);
-				if(mCanDispose)
-				{
-					//销毁当前使用的资源
-					ResouceManager.destoryAssetsLoader(mRequest);
-				}
 			}
 			
-			mLoader = ResouceManager.getAssetsLoader(mRequest);
+			mLoader = new Loader();
 			
 			if(mLoader)
 			{
 				
-//				mLoader.contentLoaderInfo.addEventListener(Event.COMPLETE,completeHandler);
-//				mLoader.contentLoaderInfo.addEventListener(IOErrorEvent.IO_ERROR,ioErrorHandler);
-//				var loadcontent:LoaderContext = new LoaderContext(false,mAppDomain);
-//				mLoader.loadBytes(mFileLoader.fileByte,loadcontent);
-				
-				if(mLoader.isComplete)
-				{
-					if(mInstallComplete != null)
-					{
-						mInstallComplete(new Event(Event.COMPLETE));
-					}
-				}
-				else
-				{
-					mLoader.contentLoaderInfo.addEventListener(Event.COMPLETE,completeHandler);
-					mLoader.contentLoaderInfo.addEventListener(IOErrorEvent.IO_ERROR,ioErrorHandler);
-					var loadcontent:LoaderContext = new LoaderContext(false,mAppDomain);
-					mLoader.loadBytes(mFileLoader.fileByte,loadcontent);
-				}
+				mLoader.contentLoaderInfo.addEventListener(Event.COMPLETE,completeHandler);
+				mLoader.contentLoaderInfo.addEventListener(IOErrorEvent.IO_ERROR,ioErrorHandler);
+				var loadcontent:LoaderContext = new LoaderContext(false,mAppDomain);
+				mLoader.loadBytes(mFileLoader.fileByte,loadcontent);
 			}
 		}
 		

@@ -1,4 +1,4 @@
-package gameLib_JT.appDrag
+package gFrameWork.appDrag
 {
 	import flash.display.DisplayObject;
 

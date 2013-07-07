@@ -8,6 +8,8 @@ package gFrameWork.sceneShanred
 	import gFrameWork.display.BitTextureAtlas;
 	import gFrameWork.url.SWFResource;
 
+	use namespace JT_internal;
+	
 	public class SharedScene implements IDisabled
 	{
 		
@@ -56,12 +58,26 @@ package gFrameWork.sceneShanred
 			}
 			else
 			{
-				use namespace JT_internal;
+				
 				SWFResource.canCreate = true;
 				var swfResource:SWFResource = new SWFResource();
 				sharedSwfResource[url] = swfResource;
 				SWFResource.canCreate = false;
 				return swfResource;
+			}
+		}
+		
+		/**
+		 * 挂载销毁一个swf文件资源，如果的资的引用次数为0时则直接销毁
+		 * @param url
+		 * 
+		 */		
+		public function autoReleaseSwfResource(url:String):void
+		{
+			if(sharedSwfResource[url])
+			{
+				var swfResource:SWFResource = sharedSwfResource[url];
+				swfResource.dispose();
 			}
 		}
 		
