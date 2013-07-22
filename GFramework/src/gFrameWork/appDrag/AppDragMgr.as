@@ -1,4 +1,4 @@
-package gameLib_JT.appDrag
+package gFrameWork.appDrag
 {
 	import flash.display.DisplayObject;
 	import flash.events.Event;
@@ -100,9 +100,8 @@ import flash.geom.Point;
 import flash.utils.clearTimeout;
 import flash.utils.setTimeout;
 
-import gameLib_JT.appDrag.AppDragEvent;
-import gameLib_JT.appDrag.AppDragMgr;
-import gameLib_JT.appDrag.IDragClient;
+import gFrameWork.appDrag.AppDragEvent;
+import gFrameWork.appDrag.AppDragMgr;
 
 
 class AppDragManager
