@@ -3,6 +3,7 @@ package gFrameWork.url
 	import flash.display.Loader;
 	import flash.errors.IOError;
 	import flash.events.Event;
+	import flash.events.EventDispatcher;
 	import flash.events.IOErrorEvent;
 	import flash.events.ProgressEvent;
 	import flash.net.URLRequest;
@@ -10,12 +11,19 @@ package gFrameWork.url
 	import flash.system.LoaderContext;
 	import flash.utils.Dictionary;
 	
+	import gFrameWork.IDisabled;
 	import gFrameWork.JT_internal;
 	
 	use namespace JT_internal;
 	
 	
-	public class SWFResource
+	/**
+	 * Swf文件资源加载 
+	 * @author taojiang
+	 * 
+	 */	
+	[Event(name="complete",type="flash.Events.Event")]
+	public class SWFResource extends EventDispatcher implements IDisabled
 	{
 		/**
 		 * 资源装载器 
@@ -47,38 +55,10 @@ package gFrameWork.url
 		 */		
 		private var mInstallFault:Function;
 		
-		
-		//一个标识为了必免 new()来构建所以 只能通过 getSwfResource创建
-		JT_internal static var canCreate:Boolean = false;
-		
-		/**
-		 * 引用计数器 
-		 */		
-		JT_internal static var refcount:int = 0;
-		
-		
-		
 		/**
 		 * 是否已经装载完成 
 		 */		
-		private var mIsComplete:Boolean = false;
-		
- 		/**
-		 * 
-		 * swf文件装载,可以指定一个资源文件加载，
-		 * 文件加载完成后就装载此文件的数据流内容。使其得到swf资文件里的要关对像。 
-		 * 
-		 */		
-		public function SWFResource()
-		{
-			growthRef();
-		}
-		
-		JT_internal function growthRef():void
-		{
-			refcount++;
-		}
-		
+		private var mIsComplete:Boolean = false;	
 		
 		/**
 		 * 装载资源 
@@ -135,28 +115,21 @@ package gFrameWork.url
 		 * 卸载安装的资源文件 
 		 * 
 		 */		
-		JT_internal function dispose():void
+		public function dispose():void
 		{
 			
-			if(refcount > 0)
+			if(mLoader)
 			{
-				refcount--;
+				mLoader.contentLoaderInfo.removeEventListener(Event.COMPLETE,completeHandler);
+				mLoader.contentLoaderInfo.removeEventListener(IOErrorEvent.IO_ERROR,ioErrorHandler);
+				mLoader.unloadAndStop(false);
 			}
-			else
+			
+			if(mFileLoader)
 			{
-				if(mLoader)
-				{
-					mLoader.contentLoaderInfo.removeEventListener(Event.COMPLETE,completeHandler);
-					mLoader.contentLoaderInfo.removeEventListener(IOErrorEvent.IO_ERROR,ioErrorHandler);
-					mLoader.unloadAndStop(false);
-				}
-				
-				if(mFileLoader)
-				{
-					mFileLoader.removeEventListener(Event.COMPLETE,assetsCompleteHandler);
-					mFileLoader.removeEventListener(IOErrorEvent.IO_ERROR,assetsIOErrorHandler);
-					mFileLoader.dispose();
-				}
+				mFileLoader.removeEventListener(Event.COMPLETE,assetsCompleteHandler);
+				mFileLoader.removeEventListener(IOErrorEvent.IO_ERROR,assetsIOErrorHandler);
+				mFileLoader.dispose();
 			}
 		}
 		

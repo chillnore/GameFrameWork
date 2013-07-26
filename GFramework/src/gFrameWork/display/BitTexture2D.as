@@ -13,14 +13,14 @@ package gFrameWork.display
 	 * @author JT
 	 * 
 	 */	
-	public class BitTexture
+	public class BitTexture2D
 	{
 		/**
 		 * 位图数据源 
 		 */		
 		private var mBitSource:BitmapData;
 		
-		public function BitTexture(bitmapDrawable:IBitmapDrawable)
+		public function BitTexture2D(bitmapDrawable:IBitmapDrawable)
 		{
 			if(bitmapDrawable is BitmapData)
 			{
@@ -38,10 +38,10 @@ package gFrameWork.display
 			}
 		}
 		
-		public function getRectTexture(rect:Rectangle):BitTexture
-		{
-			return new BitTexture(getRectBitmapData(rect));
-		}
+//		public function getRectTexture(rect:Rectangle):BitTexture
+//		{
+//			return new BitTexture(getRectBitmapData(rect));
+//		}
 		
 		public function getRectBitmapData(rect:Rectangle):BitmapData
 		{

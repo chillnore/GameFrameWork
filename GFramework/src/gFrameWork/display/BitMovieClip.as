@@ -207,6 +207,11 @@ package gFrameWork.display
 		{
 			clearTimeout(playID);
 			
+			if(stage)
+			{
+				stage.removeEventListener(Event.RENDER,renderHandler);
+			}
+			
 			if(m_bitmap)
 			{
 				if(m_bitmap.parent)
@@ -300,6 +305,20 @@ package gFrameWork.display
 			
 		}
 		
+		private function renderHandler(event:Event):void
+		{
+			if(m_bitmap)
+			{
+				m_bitmap.bitmapData = m_frames[m_currentFrame] as BitmapData;
+			}
+			
+			if(stage)
+			{
+				stage.removeEventListener(Event.RENDER,renderHandler);
+			}
+			
+		}
+		
 		public function advanceTime(passedTime:Number):void
 		{
 			if(totalFrames == 0) return;
@@ -316,7 +335,9 @@ package gFrameWork.display
 			
 			if (stage)
 			{
-				m_bitmap.bitmapData = m_frames[m_currentFrame] as BitmapData;
+				stage.addEventListener(Event.RENDER,renderHandler,false,0,true);
+				stage.invalidate();
+				//m_bitmap.bitmapData = m_frames[m_currentFrame] as BitmapData;
 			}
 			
 			while (m_currentTime >= m_startTimes[m_currentFrame] + m_frameDuration[m_currentFrame])

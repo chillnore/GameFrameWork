@@ -16,8 +16,6 @@ package gFrameWork.display
 
 	public class BitTextureAtlas implements IDisabled
 	{
-		
-		
 		/**
 		 * 位图的数据源 
 		 */		
