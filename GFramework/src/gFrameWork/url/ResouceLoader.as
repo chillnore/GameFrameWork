@@ -17,13 +17,8 @@ package gFrameWork.url
 	 * 资源文件装载
 	 * @author taojiang
 	 */	
-	public class AssetsLoader extends Loader
+	public class ResouceLoader extends Loader
 	{
-		/**
-		 * 引用计算 
-		 */		
-		JT_internal var mReferenceCount:int = 0;
-		JT_internal static var internalCall:Boolean = false;
 		/**
 		 * 测试次数 
 		 */		
@@ -54,13 +49,9 @@ package gFrameWork.url
 		 */		
 		private var isLoading:Boolean = false;
 		
-		public function AssetsLoader()
+		public function ResouceLoader()
 		{
 			super();
-			if(!internalCall)
-			{
-				throw new Error("This can't use the new generate as instance");
-			}
 		}
 		
 		private function listener():void

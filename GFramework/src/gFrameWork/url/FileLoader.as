@@ -10,6 +10,7 @@ package gFrameWork.url
 	import flash.utils.ByteArray;
 	
 	import gFrameWork.JT_internal;
+	import gFrameWork.pool.PoolMgr;
 	
 	
 	[Event(name="complete",type="flash.events.Event")]
@@ -42,6 +43,30 @@ package gFrameWork.url
 		 */		
 		private var mLoading:Boolean = false;
 		
+		/**
+		 * 获取一个共享的文件加载器，避免加载相同的文件 
+		 * @param request
+		 * @return 
+		 * 
+		 */		
+		public static function getSharedFileLoader(request:URLRequest):FileLoader
+		{
+			if(request)
+			{
+				var cacheFileLoader:Object = PoolMgr.instance.getObjByUrl(request.url);
+				if(cacheFileLoader)
+				{
+					return cacheFileLoader["fileLoader"];
+				}
+				else
+				{
+					var fileLoader:FileLoader = new FileLoader(request);
+					PoolMgr.instance.addObjToPool(request.url,fileLoader);
+					return fileLoader;
+				}
+			}
+			return null;
+		}
 		
 		/**
 		 *

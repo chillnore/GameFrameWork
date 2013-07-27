@@ -20,7 +20,7 @@ package testDB
 		
 		private function installDB():void
 		{
-			var dbXML = new XML(new DB_FILE());
+			var dbXML:XML = new XML(new DB_FILE());
 			DataBase.installTable("cityScene",DataBaseTable,C_City_Scene_Reg,dbXML);
 		}
 		

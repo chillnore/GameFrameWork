@@ -65,8 +65,8 @@ package gFrameWork.url
 				{
 					removeChild(objContent as DisplayObject);
 				}
-				//mSWFResource.dispose();
-				//mSWFResource = null;
+				mSWFResource.dispose();
+				mSWFResource = null;
 			}
 		}
 		

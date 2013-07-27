@@ -90,7 +90,7 @@ class dataBase
 				//获取当前数据项的所有数据节点
 				var properties:XMLList = xmlItem.children();
 				//表的主键
-				var primaryKey = properties[0].localName();
+				var primaryKey:String = properties[0].localName();
 				//当前的数据节点
 				var propertXML:XML;
 				//定义当前的数据结构

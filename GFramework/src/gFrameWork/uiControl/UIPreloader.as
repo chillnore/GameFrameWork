@@ -15,7 +15,6 @@ package gFrameWork.uiControl
 	import flash.net.URLRequest;
 	
 	import gFrameWork.url.FileLoader;
-	import gFrameWork.url.ResouceManager;
 	
 	import mx.utils.StringUtil;
 
@@ -203,7 +202,7 @@ package gFrameWork.uiControl
 			{
 				for(var i:int = 0; i < loadCount; i++)
 				{
-					mFileList.push(ResouceManager.getFileLoader(new URLRequest(mLoadList[i])));
+					mFileList.push(FileLoader.getSharedFileLoader(new URLRequest(mLoadList[i])));
 				}
 				
 				if(mFileList.length > 0)

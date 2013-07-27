@@ -13,6 +13,7 @@ package gFrameWork.url
 	
 	import gFrameWork.IDisabled;
 	import gFrameWork.JT_internal;
+	import gFrameWork.pool.PoolMgr;
 	
 	use namespace JT_internal;
 	
@@ -28,7 +29,7 @@ package gFrameWork.url
 		/**
 		 * 资源装载器 
 		 */		
-		private var mLoader:Loader
+		private var mLoader:ResouceLoader
 		
 		/**
 		 * 文件的装载 
@@ -61,6 +62,12 @@ package gFrameWork.url
 		private var mIsComplete:Boolean = false;	
 		
 		/**
+		 * 缓存对像
+		 */		
+		private var mCachePool:Object = null;
+		
+		
+		/**
 		 * 装载资源 
 		 * @param assets									指定的资源文件
 		 * @param appDomain									指定需要装载的程序应用域
@@ -71,74 +78,86 @@ package gFrameWork.url
 		public function install(request:URLRequest,installSucceed:Function,installFault:Function = null):void
 		{
 			
+			if(mRequest == request)
+			{
+				return;
+			}
+			
+			//先清除老的资源缓冲
+			PoolMgr.instance.releasePool(cacheName);
+			
 			mInstallComplete = installSucceed;
 			mInstallFault = installFault;
 			mRequest = request;
 			
-			//资源是已经装载成，如果装完成则直接调用完成函数
-			if(mIsComplete)
+			mCachePool = PoolMgr.instance.getObjByUrl(cacheName);
+			if(mCachePool)
 			{
-				if(mInstallComplete != null)
+				mFileLoader = mCachePool["fileLoader"];
+				mLoader = mCachePool["resultLoader"];
+				mAppDomain = mCachePool["domain"];
+				mIsComplete = mCachePool["isComplete"];
+				
+				//如果已经全部装载完成，直接调回完成回调函数
+				if(mIsComplete)
 				{
-					mInstallComplete(new Event(Event.COMPLETE));
+					if(mInstallComplete != null)
+					{
+						mInstallComplete(new Event(Event.COMPLETE));
+					}
+				}
+				else
+				{
+					mFileLoader.removeEventListener(Event.COMPLETE,fileLoaderComplete);
+					mFileLoader.removeEventListener(IOErrorEvent.IO_ERROR,fileIOErrorHandler);
+					
+					mLoader.contentLoaderInfo.removeEventListener(Event.COMPLETE,completeHandler);
+					mLoader.contentLoaderInfo.removeEventListener(IOErrorEvent.IO_ERROR,ioErrorHandler);	
 				}
 			}
 			else
 			{
-				if(mFileLoader)
-				{
-					mFileLoader.removeEventListener(Event.COMPLETE,assetsCompleteHandler);
-					mFileLoader.removeEventListener(IOErrorEvent.IO_ERROR,assetsIOErrorHandler);
-				}
+				mCachePool = new Object();
+				mFileLoader = new FileLoader(mRequest);
+				mFileLoader.addEventListener(Event.COMPLETE,fileLoaderComplete,false,0,true);
+				mFileLoader.addEventListener(IOErrorEvent.IO_ERROR,fileIOErrorHandler,false,0,true);
 				
 				mAppDomain = new ApplicationDomain();
-				mFileLoader = ResouceManager.getFileLoader(request);
+				mLoader = new ResouceLoader();
 				
-				/*验证资源文件是否已经被下载完成*/
-				if(mFileLoader.isComplete)
-				{
-					//开始装载资源
-					internalInstall();
-				}
-				else
-				{
-					//监听下载过程
-					mFileLoader.addEventListener(Event.COMPLETE,assetsCompleteHandler,false,0,true);
-					mFileLoader.addEventListener(IOErrorEvent.IO_ERROR,assetsIOErrorHandler,false,0,true);
-					mFileLoader.loader();
-				}
+				mCachePool["fileLoader"] = mFileLoader;
+				mCachePool["resultLoader"] = mLoader;
+				mCachePool["domain"] = mAppDomain;
+				mCachePool["isComplete"] = mIsComplete;
+				
+				//添加到资源缓存池中
+				PoolMgr.instance.addObjToPool(cacheName,mCachePool);
+				
+				mFileLoader.loader();
+				
 			}
+			
 		}
 		
 		/**
-		 * 
-		 * 卸载安装的资源文件 
+		 * 文件下载成功处理 
+		 * @param event
 		 * 
 		 */		
-		public function dispose():void
+		private function fileLoaderComplete(event:Event):void
 		{
-			
-			if(mLoader)
-			{
-				mLoader.contentLoaderInfo.removeEventListener(Event.COMPLETE,completeHandler);
-				mLoader.contentLoaderInfo.removeEventListener(IOErrorEvent.IO_ERROR,ioErrorHandler);
-				mLoader.unloadAndStop(false);
-			}
-			
-			if(mFileLoader)
-			{
-				mFileLoader.removeEventListener(Event.COMPLETE,assetsCompleteHandler);
-				mFileLoader.removeEventListener(IOErrorEvent.IO_ERROR,assetsIOErrorHandler);
-				mFileLoader.dispose();
-			}
+			mLoader.contentLoaderInfo.addEventListener(Event.COMPLETE,completeHandler);
+			mLoader.contentLoaderInfo.addEventListener(IOErrorEvent.IO_ERROR,ioErrorHandler);
+			var loadcontent:LoaderContext = new LoaderContext(false,mAppDomain);
+			mLoader.loadBytes(mFileLoader.fileByte,loadcontent);
 		}
 		
-		private function assetsCompleteHandler(event:Event):void
-		{
-			internalInstall();
-		}
-		
-		private function assetsIOErrorHandler(event:IOErrorEvent):void
+		/**
+		 * 文件下载失败处理 
+		 * @param event
+		 * 
+		 */		
+		private function fileIOErrorHandler(event:IOErrorEvent):void
 		{
 			if(mInstallFault != null)
 			{
@@ -150,32 +169,13 @@ package gFrameWork.url
 			}
 		}
 		
-		private function internalInstall():void
-		{
-			if(mLoader)
-			{
-				mLoader.contentLoaderInfo.removeEventListener(Event.COMPLETE,completeHandler);
-				mLoader.contentLoaderInfo.removeEventListener(IOErrorEvent.IO_ERROR,ioErrorHandler);
-				mLoader.unloadAndStop(true);
-			}
-			
-			mLoader = new Loader();
-			
-			if(mLoader)
-			{
-				
-				mLoader.contentLoaderInfo.addEventListener(Event.COMPLETE,completeHandler);
-				mLoader.contentLoaderInfo.addEventListener(IOErrorEvent.IO_ERROR,ioErrorHandler);
-				var loadcontent:LoaderContext = new LoaderContext(false,mAppDomain);
-				mLoader.loadBytes(mFileLoader.fileByte,loadcontent);
-			}
-		}
-		
 		private function completeHandler(event:Event):void
 		{
 			if(mInstallComplete != null)
 			{
 				mInstallComplete(event);
+				mIsComplete = true;
+				mCachePool["isComplete"] = mIsComplete;
 			}
 		}
 		
@@ -184,6 +184,36 @@ package gFrameWork.url
 			if(mInstallFault != null)
 			{
 				mInstallFault(event);
+			}
+		}
+		
+		
+		/**
+		 * 
+		 * 卸载安装的资源文件 
+		 * 
+		 */		
+		public function dispose():void
+		{
+			//先清除老的资源缓冲
+			PoolMgr.instance.releasePool(cacheName);
+		}
+		
+		
+		/**
+		 * 缓冲的对像名称 
+		 * @return 
+		 * 
+		 */		
+		private function get cacheName():String
+		{
+			if(mRequest)
+			{
+				return mRequest.url + "__cachePool"
+			}
+			else
+			{
+				return null;
 			}
 		}
 		
