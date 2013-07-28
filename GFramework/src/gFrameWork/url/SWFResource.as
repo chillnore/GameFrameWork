@@ -108,11 +108,11 @@ package gFrameWork.url
 				}
 				else
 				{
-					mFileLoader.removeEventListener(Event.COMPLETE,fileLoaderComplete);
-					mFileLoader.removeEventListener(IOErrorEvent.IO_ERROR,fileIOErrorHandler);
+					//mFileLoader.removeEventListener(Event.COMPLETE,fileLoaderComplete);
+					//mFileLoader.removeEventListener(IOErrorEvent.IO_ERROR,fileIOErrorHandler);
 					
-					mLoader.contentLoaderInfo.removeEventListener(Event.COMPLETE,completeHandler);
-					mLoader.contentLoaderInfo.removeEventListener(IOErrorEvent.IO_ERROR,ioErrorHandler);	
+					mLoader.contentLoaderInfo.addEventListener(Event.COMPLETE,completeHandler);
+					mLoader.contentLoaderInfo.addEventListener(IOErrorEvent.IO_ERROR,ioErrorHandler);
 				}
 			}
 			else
